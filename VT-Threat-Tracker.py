@@ -3,7 +3,7 @@ import time
 
 api_key = ""
 
-# List of ransomware groups to track
+# List of ransomware groups to track OR Usernames
 ransomware_groups = ["Hive", "Conti", "DarkSide", "Play", "Royal"]
 
 # Dictionary to store the latest hash of each ransomware group
