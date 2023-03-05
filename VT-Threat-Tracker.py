@@ -3,11 +3,11 @@ import time
 
 api_key = ""
 
-# List of ransomware groups to track OR Usernames
-ransomware_groups = ["Hive", "Conti", "DarkSide", "Play", "Royal"]
+# List of ransomware groups and user profile to track. Modify as needed.
+groups_and_profiles = ["Hive", "Conti", "DarkSide", "Play", "Royal", "my_user_profile"]
 
-# Dictionary to store the latest hash of each ransomware group
-latest_hashes = {group: "" for group in ransomware_groups}
+# Dictionary to store the latest hash of each ransomware group and user profile
+latest_hashes = {group: "" for group in groups_and_profiles}
 
 def search_samples(api_key, query):
     url = f"https://www.virustotal.com/api/v3/intelligence/search?query={query}"
@@ -28,19 +28,22 @@ def get_sample_details(api_key, hash_value):
         return None
 
 def update_latest_hashes(api_key):
-    for group in ransomware_groups:
-        query = f"comment:\"{group}\""
+    for group_or_profile in groups_and_profiles:
+        if group_or_profile == "my_user_profile":
+            query = f"user:{group_or_profile}"
+        else:
+            query = f"comment:\"{group_or_profile}\""
         results = search_samples(api_key, query)
-        if results is not None:
+        if results is not None and len(results["data"]) > 0:
             latest_hash = results["data"][0]["id"]
-            if latest_hash != latest_hashes[group]:
-                latest_hashes[group] = latest_hash
+            if latest_hash != latest_hashes[group_or_profile]:
+                latest_hashes[group_or_profile] = latest_hash
                 sample_details = get_sample_details(api_key, latest_hash)
                 # Save the sample details to a database or file
                 # Example: save_sample_details_to_database(sample_details)
-                print(f"New sample found for {group}: {latest_hash}")
+                print(f"New sample found for {group_or_profile}: {latest_hash}")
         else:
-            print(f"Error searching for samples for {group}")
+            print(f"No new samples found for {group_or_profile}")
 
 while True:
     # Update the latest hashes every hour
